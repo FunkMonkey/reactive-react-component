@@ -1,0 +1,17 @@
+  extends: "airbnb-base"
+  env:
+    node: true
+  rules:
+    array-bracket-spacing: ["off"]
+    arrow-parens: ["error", "as-needed"]
+    curly: "off"
+    comma-dangle: ["error", "only-multiline"]
+    computed-property-spacing: ["off"]
+    linebreak-style: ["off"]
+    no-console: "warn"
+    no-continue: "off"
+    no-param-reassign: "off"
+    no-plusplus: "off"
+    no-restricted-syntax: ["off", "BinaryExpression[operator='in']" ]
+    no-underscore-dangle: "off"
+    space-in-parens: ["error", "always"]

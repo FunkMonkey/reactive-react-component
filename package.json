@@ -1,0 +1,33 @@
+{
+  "name": "cycle-view",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [ ],
+  "author": "AndSelm <and.selm@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:FunkMonkey/cycle-view.git"
+  },
+  "homepage": "https://github.com/FunkMonkey/cycle-view",
+  "bugs": {
+    "url": "https://github.com/FunkMonkey/cycle-view/issues"
+  },
+  "main": "build/index.js",
+  "scripts": {
+    "build": "gulp build",
+    "watch:build": "gulp watch:build"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "6.22.0",
+    "eslint": "3.16.1",
+    "eslint-config-airbnb-base": "11.1.0",
+    "eslint-plugin-import": "2.2.0",
+    "gulp": "3.9.1",
+    "gulp-babel": "6.1.2",
+    "gulp-util": "3.0.8"
+  },
+  "dependencies": {
+    "ramda": "0.21.0"
+  }
+}
