@@ -69,7 +69,8 @@ export default function ( env, options ) {
 
       this.cycleComponent = definition( sources, this.lifecycles, this );
 
-      const renderSubscription = this.cycleComponent.view.subscribe( newView => {
+      const view$ = this.cycleComponent.view || this.cycleComponent.view$;
+      const renderSubscription = view$.subscribe( newView => {
         this.setState( { newView } );
       } );
 
