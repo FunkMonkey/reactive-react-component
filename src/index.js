@@ -1,7 +1,7 @@
-import react from './react';
-import utils from './utils';
+import * as React from './react';
+import * as utils from './utils';
 
 export {
-  react,
+  React,
   utils
 };

@@ -2,8 +2,8 @@
 
 import createBaseComponent from './create-base-component';
 
-export default function ( displayName, definitionFn, options, env ) {
-  const BaseComponent = createBaseComponent( displayName, definitionFn, options, env );
+export default function ( env, options ) {
+  const BaseComponent = createBaseComponent( env, options );
 
   class ReactiveComponent extends BaseComponent {
 
@@ -18,6 +18,7 @@ export default function ( displayName, definitionFn, options, env ) {
         const sinkObserver = this.props[sinkName];
         if ( sinkObserver && typeof sinkObserver.next === 'function' ) {
           sinkObserver.next( sinks[sinkName] );
+          sinkObserver.complete();
         }
       }
     }

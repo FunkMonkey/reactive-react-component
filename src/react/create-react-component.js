@@ -3,8 +3,8 @@ import createBaseComponent from './create-base-component';
 
 const isEqual = ( a, b ) => a === b;
 
-export default function ( displayName, definitionFn, options, env ) {
-  const BaseComponent = createBaseComponent( displayName, definitionFn, options, env );
+export default function ( env, options ) {
+  const BaseComponent = createBaseComponent( env, options );
   const { inProps } = options;
 
   class ReactComponent extends BaseComponent {

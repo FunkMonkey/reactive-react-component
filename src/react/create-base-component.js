@@ -3,12 +3,14 @@
 import CompositeSubscription from '../utils/composite-subscription';
 import createLifecycleSubjects from './create-lifecycle-subjects';
 
-export default function ( displayName, definitionFn, options, env ) {
+export default function ( env, options ) {
+  const { displayName, definition } = options;
+
   if ( typeof displayName !== 'string' ) {
     throw new Error( 'Invalid displayName' );
   }
-  if ( typeof definitionFn !== 'function' ) {
-    throw new Error( 'Invalid definitionFn' );
+  if ( typeof definition !== 'function' ) {
+    throw new Error( 'Invalid definition' );
   }
 
   // The option for the default root element type.
@@ -18,13 +20,8 @@ export default function ( displayName, definitionFn, options, env ) {
 
     constructor() {
       super();
+      this.state = { newView: null };
       this.displayName = displayName;
-    }
-
-    getInitialState() {
-      return {
-        newView: null
-      };
     }
 
     componentWillMount() {
@@ -70,7 +67,7 @@ export default function ( displayName, definitionFn, options, env ) {
 
       this.lifecycles = createLifecycleSubjects( env.Observable );
 
-      this.cycleComponent = definitionFn( sources, this.lifecycles, this );
+      this.cycleComponent = definition( sources, this.lifecycles, this );
 
       const renderSubscription = this.cycleComponent.view.subscribe( newView => {
         this.setState( { newView } );
