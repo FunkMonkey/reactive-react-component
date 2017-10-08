@@ -24,7 +24,7 @@ export default function ( env, options ) {
     }
 
     componentWillMount() {
-      this._subscribeCycleComponent();
+      this._subscribeReactiveComponent();
       this.lifecycles.componentWillMount.next();
     }
 
@@ -57,28 +57,28 @@ export default function ( env, options ) {
       this.lifecycles.componentDidUpdate.complete();
       this.lifecycles.componentWillUnmount.next();
       this.lifecycles.componentWillUnmount.complete();
-      this._unsubscribeCycleComponent();
+      this._unsubscribeReactiveComponent();
     }
 
-    _subscribeCycleComponent() {
+    _subscribeReactiveComponent() {
       const sources = this.createSources();
       this.compositeSubscription = new CompositeSubscription();
 
       this.lifecycles = createLifecycleSubjects( env.Observable );
 
-      this.cycleComponent = definition( sources, this.lifecycles, this );
+      this.sinks = definition( sources, this.lifecycles, this );
 
-      const view$ = this.cycleComponent.view || this.cycleComponent.view$;
+      const view$ = this.sinks.view || this.sinks.view$;
       const renderSubscription = view$.subscribe( newView => {
         this.setState( { newView } );
       } );
 
       this.compositeSubscription.add( renderSubscription );
 
-      this.handleSinks( this.cycleComponent );
+      this.handleSinks( this.sinks );
     }
 
-    _unsubscribeCycleComponent() {
+    _unsubscribeReactiveComponent() {
       this.compositeSubscription.unsubscribe();
     }
 
