@@ -1,4 +1,4 @@
-import createSourceSubjects from './create-source-subjects';
+import createSourceSubjects from '../utils/create-source-subjects';
 import createBaseComponent from './create-base-component';
 
 const isEqual = ( a, b ) => a === b;
@@ -7,7 +7,7 @@ export default function ( env, options ) {
   const BaseComponent = createBaseComponent( env, options );
   const { sources } = options;
 
-  class ReactComponent extends BaseComponent {
+  class BridgeComponent extends BaseComponent {
     componentWillMount() {
       this._prevProps = this.props;
 
@@ -57,5 +57,5 @@ export default function ( env, options ) {
     }
   }
 
-  return ReactComponent;
+  return BridgeComponent;
 }

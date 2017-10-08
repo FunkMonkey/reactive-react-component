@@ -1,4 +1,4 @@
-import createSubject from '../utils/create-subject';
+import createSubject from './create-subject';
 
 export default function ( Observable, sources ) {
   const sourceSubjects = {};
