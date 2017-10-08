@@ -6,7 +6,6 @@ export default function ( env, options ) {
   const BaseComponent = createBaseComponent( env, options );
 
   class ReactiveComponent extends BaseComponent {
-
     createSources() {
       return this.props;
     }
@@ -26,7 +25,6 @@ export default function ( env, options ) {
     componentWillReceiveProps( ) {
       throw new Error( 'Reactive Components cannot receive new props!' );
     }
-
   }
 
   return ReactiveComponent;

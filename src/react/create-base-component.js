@@ -17,7 +17,6 @@ export default function ( env, options ) {
   const rootTagName = options.rootTagName || 'div';
 
   class BaseComponent extends env.React.Component {
-
     constructor() {
       super();
       this.state = { newView: null };

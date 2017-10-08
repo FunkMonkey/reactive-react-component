@@ -54,7 +54,6 @@ export default function ( env, options ) {
         }
       }
     }
-
   }
 
   return ReactComponent;
