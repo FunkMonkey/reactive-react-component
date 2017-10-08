@@ -1,11 +1,11 @@
-import createPropSubjects from './create-prop-subjects';
+import createSourceSubjects from './create-source-subjects';
 import createBaseComponent from './create-base-component';
 
 const isEqual = ( a, b ) => a === b;
 
 export default function ( env, options ) {
   const BaseComponent = createBaseComponent( env, options );
-  const { inProps } = options;
+  const { sources } = options;
 
   class ReactComponent extends BaseComponent {
     componentWillMount() {
@@ -15,21 +15,21 @@ export default function ( env, options ) {
 
       // sending out first props
       // TODO: do it here?
-      for ( const propName in inProps ) {
-        if ( propName in this.props )
-          this._sources[propName].next( this.props[propName] );
+      for ( const sourceName in sources ) {
+        if ( sourceName in this.props )
+          this._sources[sourceName].next( this.props[sourceName] );
       }
     }
 
     componentWillReceiveProps( nextProps ) {
-      for ( const propName in inProps ) {
-        if ( !Object.prototype.hasOwnProperty.call( inProps, propName ) )
+      for ( const sourceName in sources ) {
+        if ( !Object.prototype.hasOwnProperty.call( sources, sourceName ) )
           continue;
 
-        const comparer = inProps[propName].comparer || isEqual;
-        if ( propName in nextProps &&
-             !comparer( nextProps[propName], this._prevProps[propName] ) )
-          this._sources[propName].next( nextProps[propName] );
+        const comparer = sources[sourceName].comparer || isEqual;
+        if ( sourceName in nextProps &&
+             !comparer( nextProps[sourceName], this._prevProps[sourceName] ) )
+          this._sources[sourceName].next( nextProps[sourceName] );
       }
 
       this._prevProps = nextProps;
@@ -38,11 +38,12 @@ export default function ( env, options ) {
     }
 
     createSources() {
-      this._sources = createPropSubjects( env.Observable, inProps );
+      this._sources = createSourceSubjects( env.Observable, sources );
       return this._sources;
     }
 
     handleSinks( sinks ) {
+      // give sink to prop (callback function) of the same name
       const sinkNames = Object.keys( sinks );
       for ( let i = 0; i < sinkNames.length; ++i ) {
         const sinkName = sinkNames[i];

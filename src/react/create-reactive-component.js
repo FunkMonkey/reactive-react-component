@@ -7,10 +7,13 @@ export default function ( env, options ) {
 
   class ReactiveComponent extends BaseComponent {
     createSources() {
+      // props are completely passed through to definition function as sources
       return this.props;
     }
 
     handleSinks( sinks ) {
+      // give sink to prop (Observer) of the same name
+      // TODO: allow callback functions, too?
       const sinkNames = Object.keys( sinks );
       for ( let i = 0; i < sinkNames.length; ++i ) {
         const sinkName = sinkNames[i];
