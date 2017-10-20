@@ -31,37 +31,31 @@ const env = { React, Observable: Rx.Observable };
 export default createReactiveComponent.bind( null, env );
 ```
 
-### `hello.js`
+### `hello-def.js`
 
 Create a reusable React component using a definition function that receives `sources` and returns `sinks` including the render observable `view` or `view$`.
 
 ```js
 import Rx from 'rxjs/Rx';
-import createReactiveComponent from './create-reactive-component';
+import React from 'react';
 
-function helloDef( sources ) {
+export default function ( sources ) {
   const onChange$ = new Rx.Subject();
-  const name$ = onChange$.startWith('');
+  const name$ = onChange$.map( evt => evt.target.value ).startWith( '' );
 
   const view$ = Rx.Observable.combineLatest( sources.greeting$, name$ )
-    .map( [greeting, name] => (
+    .map( ( [greeting, name] ) => (
       <div>
-        <h1>{greeting}, {name}</h1>
+        <h1>{greeting}: {name}</h1>
         Your Name: <input onChange={onChange$.next.bind( onChange$ )} />
       </div>
-       )
-    );
+    ) );
 
   return {
     view$,
-    onNameChange$: onChange$
-   };
+    onNameChange$: name$
+  };
 }
-
-export default createReactiveComponent( {
-  displayName: 'Hello',
-  definition: helloDef
-} );
 ```
 
 `sources` are the exact same observables that the user passed in as props.
@@ -71,7 +65,19 @@ from in `componentWillUnmount`. It is the only observable that will be subscribe
 to internally. The React component itself will only update, when it receives a new
 element from this observable.
 
-### `main.js`
+### `hello-reactive.js`
+
+```js
+import createReactiveComponent from './create-reactive-component';
+import definition from './hello-def';
+
+export default createReactiveComponent( {
+  displayName: 'Hello',
+  definition
+} );
+```
+
+### `main-reactive.js`
 
 Use the component with Observables.
 
@@ -79,17 +85,19 @@ Use the component with Observables.
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Rx from 'rxjs/Rx';
-import Hello from './hello';
+import Hello from './hello-reactive';
 
-const greeting$ = Rx.Observable.interval( 5000 )
-                               .map( count => count % 2 === 0 ? 'Hey' : 'Ho' );
+const greeting$ = Rx.Observable
+  .interval( 3000 )
+  .map( count => ( count % 2 === 0 ? 'Hey, my name is'
+                                   : 'What, my name is' ) );
 
 const onNameChange$ = new Rx.ReplaySubject( 1 ).switch();
 
 ReactDOM.render( <Hello greeting$={greeting$} onNameChange$={onNameChange$} />,
-                 document.querySelector( '.hello-container' ) );
+  document.querySelector( '.copal-content' ) );
 
-onNameChange$.subscribe( name => console.log(`DEBUG: name changed to '${name}'`) );
+onNameChange$.subscribe( name => console.log( `DEBUG: name changed to '${name}'` ) );
 ```
 
 Event observables (sinks) will not be automatically subscribed to, but simply
@@ -98,3 +106,63 @@ same name as the only element and then completes. We use the `switch` operator t
 flatten the observable.
 
 ## Example for a Bridge Component
+
+### `create-bridge-component.js`
+
+You can use any React-compatible and ES Observable compatible library. Do this once and never
+think about it again.
+
+```js
+import { createBridgeComponent } from 'reactive-react-component';
+import React from 'react';
+import Rx from 'rxjs/Rx';
+
+const env = { React, Observable: Rx.Observable };
+export default createBridgeComponent.bind( null, env );
+```
+
+### `hello-def.js`
+
+No change here. You can use the same definition function!
+
+### `hello-bridge.js`
+
+```js
+import createBridgeComponent from './create-bridge-component';
+import definition from './hello-def';
+
+export default createBridgeComponent( {
+  displayName: 'Hello',
+  definition,
+  sources: {
+    greeting$: {}
+  }
+} );
+```
+
+### `main-bridge.js`
+
+Use the component like any other component (without Observables).
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Hello from './hello-bridge';
+
+function onNameChange( name ) {
+  console.log( `DEBUG: name changed to '${name}'` );
+}
+
+function updateGreeting( greeting ) {
+  // updating the props for the root component
+  ReactDOM.render( <Hello greeting$={greeting} onNameChange$={onNameChange} />,
+                   document.querySelector( '.copal-content' ) );
+}
+
+let count = 0;
+window.setInterval( () => {
+  count++;
+  const greeting = count % 2 === 0 ? 'Hey, my name is' : 'What, my name is';
+  updateGreeting( greeting );
+}, 3000 );
+```
