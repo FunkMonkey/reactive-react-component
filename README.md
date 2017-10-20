@@ -71,7 +71,9 @@ element from this observable.
 
 ### `hello-reactive.js`
 
-Create a reusable React component using the definition function.
+Create a reusable React component using the definition function. Technically you
+could do this in the same file as the definition function, but we want to re-use
+our definition function later in the bridge component example.
 
 ```js
 import createReactiveComponent from './create-reactive-component';
@@ -140,7 +142,8 @@ listener as `onNext`. All subscriptions will be disposed on `componentWillUnmoun
 
 ### `hello-bridge.js`
 
-Create a reusable React component using the definition function.
+Create a reusable React component using the definition function. Technically you
+could do this in the same file as the definition function.
 
 ```js
 import createBridgeComponent from './create-bridge-component';
