@@ -5,7 +5,8 @@ const isEqual = ( a, b ) => a === b;
 
 export default function ( env, options ) {
   const BaseComponent = createBaseComponent( env, options );
-  const { sources } = options;
+  const sourceOptions = options.sources;
+  const sinkOptions = options.sinks;
 
   class BridgeComponent extends BaseComponent {
     componentWillMount() {
@@ -15,21 +16,25 @@ export default function ( env, options ) {
 
       // sending out first props
       // TODO: do it here?
-      for ( const sourceName in sources ) {
-        if ( sourceName in this.props )
-          this._sources[sourceName].next( this.props[sourceName] );
+      for ( const sourceName in sourceOptions ) {
+        const sourceOption = sourceOptions[sourceName];
+        const propName = sourceOption.propName || sourceName;
+        if ( propName in this.props )
+          this._sources[sourceName].next( this.props[propName] );
       }
     }
 
     componentWillReceiveProps( nextProps ) {
-      for ( const sourceName in sources ) {
-        if ( !Object.prototype.hasOwnProperty.call( sources, sourceName ) )
+      for ( const sourceName in sourceOptions ) {
+        if ( !Object.prototype.hasOwnProperty.call( sourceOptions, sourceName ) )
           continue;
 
-        const comparer = sources[sourceName].comparer || isEqual;
-        if ( sourceName in nextProps &&
-             !comparer( nextProps[sourceName], this._prevProps[sourceName] ) )
-          this._sources[sourceName].next( nextProps[sourceName] );
+        const sourceOption = sourceOptions[sourceName];
+        const propName = sourceOption.propName || sourceName;
+        const comparer = sourceOption.comparer || isEqual;
+        if ( propName in nextProps &&
+             !comparer( nextProps[propName], this._prevProps[propName] ) )
+          this._sources[sourceName].next( nextProps[propName] );
       }
 
       this._prevProps = nextProps;
@@ -38,7 +43,7 @@ export default function ( env, options ) {
     }
 
     createSources() {
-      this._sources = createSourceSubjects( env.Observable, sources );
+      this._sources = createSourceSubjects( env.Observable, sourceOptions );
       return this._sources;
     }
 
@@ -47,7 +52,9 @@ export default function ( env, options ) {
       const sinkNames = Object.keys( sinks );
       for ( let i = 0; i < sinkNames.length; ++i ) {
         const sinkName = sinkNames[i];
-        const sinkCB = this.props[sinkName];
+        const sinkOption = sinkOptions && sinkOptions[sinkName];
+        const propName = ( sinkOption && sinkOption.propName ) || sinkName;
+        const sinkCB = this.props[propName];
         const sink = sinks[sinkName];
         if ( sinkCB && typeof sinkCB === 'function' ) {
           const subscription = sink.subscribe( sinkCB );
