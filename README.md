@@ -11,7 +11,7 @@ observable and optional event observables (sinks):
   - pass observers / subjects once as props to receive event observables (sinks, outgoing
     data) from the component
   - later prop updates will be ignored
-- **Bridge Component** (non-reactive interface)
+- **Bridge Component** (non-reactive interface, uses observables internally)
   - pass props as usual
       - for every prop a source observable is created internally and every prop update will emit a new event for the according observable
   - pass event listeners (callback functions) as usual
