@@ -112,7 +112,8 @@ onNameChange$.subscribe( name => console.log( `DEBUG: name changed to '${name}'`
 Event observables (sinks) will not be automatically subscribed to, but simply
 forwarded. Thus the subject `onNameChange$` receives the event observable of the
 same name as the only element and then completes. We use the `switch` operator to
-flatten the observable.
+flatten the observable. Better use a `ReplaySubject` in case you are subscribing
+late.
 
 ## Example for a Bridge Component
 
