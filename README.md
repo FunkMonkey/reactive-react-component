@@ -2,16 +2,20 @@
 
 Create [React](https://reactjs.org/) components using [ES Observables](https://github.com/tc39/proposal-observable), f. ex. [RxJS 5](https://github.com/ReactiveX/rxjs).
 
-This library provides two types of components, both of which are created using a definition function that receives source observables and must return a render observable and optional event observables (sinks):
+This library provides two types of components, both of which are created using a
+definition function that receives source observables and must return a render
+observable and optional event observables (sinks):
 
 - **Reactive Component** (reactive interface)
-  - pass source observables once directly as props
-  - pass observers / subjects once to receive event observables (sinks) from the component
+  - pass source observables (ingoing data) once as props
+  - pass observers / subjects once as props to receive event observables (sinks, outgoing
+    data) from the component
+  - later prop updates will be ignored
 - **Bridge Component** (non-reactive interface)
   - pass props as usual
       - for every prop a source observable is created internally and every prop update will emit a new event for the according observable
   - pass event listeners (callback functions) as usual
-      - if an event observable with the same name exists, it will be subscribed to with the listener as the `onNext` function
+      - if an event observable (sink) with the same name exists, it will be subscribed to with the listener as the `onNext` function
 
 This project is heavily inspired by [cycle-react](https://github.com/pH200/cycle-react) and [Cycle.js](https://cycle.js.org/).
 
@@ -33,7 +37,7 @@ export default createReactiveComponent.bind( null, env );
 
 ### `hello-def.js`
 
-Create a reusable React component using a definition function that receives `sources` and returns `sinks` including the render observable `view` or `view$`.
+Create a definition function that receives `sources` and returns `sinks` including the render observable `view` or `view$`.
 
 ```js
 import Rx from 'rxjs/Rx';
@@ -67,6 +71,8 @@ element from this observable.
 
 ### `hello-reactive.js`
 
+Create a reusable React component using the definition function.
+
 ```js
 import createReactiveComponent from './create-reactive-component';
 import definition from './hello-def';
@@ -95,8 +101,9 @@ const greeting$ = Rx.Observable
 const onNameChange$ = new Rx.ReplaySubject( 1 ).switch();
 
 ReactDOM.render( <Hello greeting$={greeting$} onNameChange$={onNameChange$} />,
-  document.querySelector( '.copal-content' ) );
+  document.querySelector( '.container' ) );
 
+// using sinks
 onNameChange$.subscribe( name => console.log( `DEBUG: name changed to '${name}'` ) );
 ```
 
@@ -110,7 +117,7 @@ flatten the observable.
 ### `create-bridge-component.js`
 
 You can use any React-compatible and ES Observable compatible library. Do this once and never
-think about it again.
+think about it again. Use `createBridgeComponent` this time.
 
 ```js
 import { createBridgeComponent } from 'reactive-react-component';
@@ -125,7 +132,15 @@ export default createBridgeComponent.bind( null, env );
 
 No change here. You can use the same definition function!
 
+Prop updates will automatically create events for source observables. For every
+sink there is a check to see if a same-named event listener exists. This will happen in
+`componentWillMount` (later added event listeners will be ignored for now). If
+one exists, the according sink observable will be subscribed to with the event
+listener as `onNext`. All subscriptions will be disposed on `componentWillUnmount`.
+
 ### `hello-bridge.js`
+
+Create a reusable React component using the definition function.
 
 ```js
 import createBridgeComponent from './create-bridge-component';
@@ -135,10 +150,24 @@ export default createBridgeComponent( {
   displayName: 'Hello',
   definition,
   sources: {
-    greeting$: {}
+    greeting$: { propName: 'greeting' }
+  },
+  sinks: {
+    onNameChange$: { propName: 'onNameChange' }
   }
 } );
 ```
+
+For bridge components the names of the `sources` must be specified. This is needed
+internally to divide the props into ingoing sources and outgoing sinks. Every source
+entry may optionally have a `comparer` property that decides if the previous and
+currently received prop value are equal in order to reduce the observable events.
+If not provided, it defaults to `a === b`.
+
+The `sinks` can optionally be specified, too.
+
+For both `sources` and `sinks` a `propName` can be set to alter the outer prop
+names.
 
 ### `main-bridge.js`
 
@@ -154,9 +183,10 @@ function onNameChange( name ) {
 }
 
 function updateGreeting( greeting ) {
-  // updating the props for the root component
-  ReactDOM.render( <Hello greeting$={greeting} onNameChange$={onNameChange} />,
-                   document.querySelector( '.copal-content' ) );
+  // updating the props for the root component, little counter-intuitive
+  // but most likely not necessary in your case...
+  ReactDOM.render( <Hello greeting={greeting} onNameChange={onNameChange} />,
+                   document.querySelector( '.container' ) );
 }
 
 let count = 0;
@@ -166,3 +196,7 @@ window.setInterval( () => {
   updateGreeting( greeting );
 }, 3000 );
 ```
+
+Despite the definition function using `greeting$` as a source and providing
+ `onNameChange$` as a sink, the props `greeting` and `onNameChange` are used
+here, because we assigned `propName` in `hello-bridge.js`.
