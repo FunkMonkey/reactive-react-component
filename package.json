@@ -1,17 +1,17 @@
 {
   "name": "reactive-react-component",
   "version": "0.0.1",
-  "description": "",
-  "keywords": [ ],
+  "description": "Create React components using ES Observables",
+  "keywords": ["react", "observables", "rx", "rxjs"],
   "author": "AndSelm <and.selm@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:FunkMonkey/cycle-view.git"
+    "url": "git@github.com:FunkMonkey/reactive-react-component.git"
   },
-  "homepage": "https://github.com/FunkMonkey/cycle-view",
+  "homepage": "https://github.com/FunkMonkey/reactive-react-component",
   "bugs": {
-    "url": "https://github.com/FunkMonkey/cycle-view/issues"
+    "url": "https://github.com/FunkMonkey/reactive-react-component/issues"
   },
   "main": "build/index.js",
   "scripts": {
