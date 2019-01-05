@@ -1,4 +1,4 @@
 *
-!build/**
+!build/**/*.js
 !package.json
 !README.md
