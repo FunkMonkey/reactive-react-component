@@ -26,7 +26,6 @@ export default function ( env, options ) {
     }
 
     componentWillReceiveProps( ) {
-      throw new Error( 'Reactive Components cannot receive new props!' );
     }
   }
 
