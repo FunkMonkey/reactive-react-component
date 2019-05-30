@@ -1,6 +1,6 @@
 {
   "name": "reactive-react-component",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Create React components using ES Observables",
   "keywords": ["react", "observables", "rx", "rxjs"],
   "author": "AndSelm <and.selm@gmail.com>",

@@ -1,7 +1,6 @@
 /* eslint class-methods-use-this: "off" */
 
-import CompositeSubscription from '../utils/composite-subscription';
-import createLifecycleSubjects from './create-lifecycle-subjects';
+import Component from '../component';
 
 export default function ( env, options ) {
   const { displayName, definition } = options;
@@ -17,77 +16,57 @@ export default function ( env, options ) {
   const rootTagName = options.rootTagName || 'div';
 
   class BaseComponent extends env.React.Component {
-    constructor() {
-      super();
-      this.state = { newView: null };
+    constructor( props ) {
+      super( props );
+      this.state = { view: null, viewVersion: 0 };
       this.displayName = displayName;
+      this._component = new Component( env, options, this.onViewUpdated.bind( this ) );
+      this._component.mount( this.props );
     }
 
-    componentWillMount() {
-      this._subscribeReactiveComponent();
-      this.lifecycles.componentWillMount.next();
+    onViewUpdated( view, viewVersion ) {
+      this.setState( { view, viewVersion } );
     }
 
     componentDidMount() {
-      this.lifecycles.componentDidMount.next();
+      // this.lifecycles.componentDidMount.next();
     }
 
-    componentWillReceiveProps( props ) {
-      this.lifecycles.componentWillReceiveProps.next( props );
+    shouldComponentUpdate() {
+      return this._component.shouldUpdate();
     }
 
-    shouldComponentUpdate( nextProps, nextState ) {
-      // Only care about the state since the props have been observed.
-      return this.state !== nextState;
-    }
-
-    componentWillUpdate( nextProps ) {
+    /* componentWillUpdate( nextProps ) {
       this.lifecycles.componentWillUpdate.next( nextProps );
     }
 
     componentDidUpdate( prevProps ) {
       this.lifecycles.componentDidUpdate.next( prevProps );
-    }
+    } */
 
     componentWillUnmount() {
-      this.lifecycles.componentWillMount.complete();
+      /* this.lifecycles.componentWillMount.complete();
       this.lifecycles.componentDidMount.complete();
       this.lifecycles.componentWillReceiveProps.complete();
       this.lifecycles.componentWillUpdate.complete();
       this.lifecycles.componentDidUpdate.complete();
       this.lifecycles.componentWillUnmount.next();
-      this.lifecycles.componentWillUnmount.complete();
-      this._unsubscribeReactiveComponent();
-    }
-
-    _subscribeReactiveComponent() {
-      const sources = this.createSources();
-      this.compositeSubscription = new CompositeSubscription();
-
-      this.lifecycles = createLifecycleSubjects( env.Observable );
-
-      this.sinks = definition( sources, this.lifecycles, this );
-
-      const view$ = this.sinks.view || this.sinks.view$;
-      const renderSubscription = view$.subscribe( newView => {
-        this.setState( { newView } );
-      } );
-
-      this.compositeSubscription.add( renderSubscription );
-
-      this.handleSinks( this.sinks );
-    }
-
-    _unsubscribeReactiveComponent() {
-      this.compositeSubscription.unsubscribe();
+      this.lifecycles.componentWillUnmount.complete(); */
+      this._component.unmount();
     }
 
     render() {
-      const vtree = this.state ? this.state.newView : null;
+      // we don't really know if the render was triggered by new props or new state
+      // the component will compare them
+      this._component.updateProps( this.props );
 
-      if ( vtree ) {
-        return vtree;
+      const view = this.state ? this.state.view : null;
+
+      if ( view ) {
+        this._component.updateComponent( this.state.viewVersion );
+        return view;
       }
+
       return env.React.createElement( rootTagName );
     }
   }

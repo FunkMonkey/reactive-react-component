@@ -29,9 +29,9 @@ think about it again.
 ```js
 import { createReactiveComponent } from 'reactive-react-component';
 import React from 'react';
-import Rx from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 
-const env = { React, Observable: Rx.Observable };
+const env = { React, Observable };
 export default createReactiveComponent.bind( null, env );
 ```
 
@@ -40,14 +40,14 @@ export default createReactiveComponent.bind( null, env );
 Create a definition function that receives `sources` and returns `sinks` including the render observable `view` or `view$`.
 
 ```js
-import Rx from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 import React from 'react';
 
 export default function ( sources ) {
   const onChange$ = new Rx.Subject();
   const name$ = onChange$.map( evt => evt.target.value ).startWith( '' );
 
-  const view$ = Rx.Observable.combineLatest( sources.greeting$, name$ )
+  const view$ = Observable.combineLatest( sources.greeting$, name$ )
     .map( ( [greeting, name] ) => (
       <div>
         <h1>{greeting}: {name}</h1>
@@ -92,15 +92,15 @@ Use the component with Observables.
 ```js
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Rx from 'rxjs/Rx';
+import { Observable, ReplaySubject } from 'rxjs';
 import Hello from './hello-reactive';
 
-const greeting$ = Rx.Observable
+const greeting$ = Observable
   .interval( 3000 )
   .map( count => ( count % 2 === 0 ? 'Hey, my name is'
                                    : 'What, my name is' ) );
 
-const onNameChange$ = new Rx.ReplaySubject( 1 ).switch();
+const onNameChange$ = new ReplaySubject( 1 ).switch();
 
 ReactDOM.render( <Hello greeting$={greeting$} onNameChange$={onNameChange$} />,
   document.querySelector( '.container' ) );
@@ -125,9 +125,9 @@ think about it again. Use `createBridgeComponent` this time.
 ```js
 import { createBridgeComponent } from 'reactive-react-component';
 import React from 'react';
-import Rx from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 
-const env = { React, Observable: Rx.Observable };
+const env = { React, Observable };
 export default createBridgeComponent.bind( null, env );
 ```
 
