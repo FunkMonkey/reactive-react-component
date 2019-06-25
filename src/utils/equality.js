@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
+
 export const isEqual = ( a, b ) => a === b;
 
 export const allPropsAreEqual = ( a, b, propIsEqual ) => {

@@ -22,18 +22,27 @@ export default function ( env, options ) {
       this.displayName = displayName;
       this._component = new Component( env, options, this.onViewUpdated.bind( this ) );
       this._component.mount( this.props );
+      this._isMounted = false;
     }
 
     onViewUpdated( view, viewVersion ) {
-      this.setState( { view, viewVersion } );
+      if ( this._isMounted )
+        this.setState( { view, viewVersion } );
+      else
+        this.state = { view, viewVersion };
     }
 
     componentDidMount() {
+      this._isMounted = true;
       // this.lifecycles.componentDidMount.next();
     }
 
-    shouldComponentUpdate() {
-      return this._component.shouldUpdate();
+    shouldComponentUpdate( nextProps ) {
+      // we don't really know if the render was triggered by new props or new state
+      // the component will compare them
+      this._component.updateProps( nextProps );
+
+      return this._component.shouldComponentUpdate();
     }
 
     /* componentWillUpdate( nextProps ) {
@@ -56,10 +65,6 @@ export default function ( env, options ) {
     }
 
     render() {
-      // we don't really know if the render was triggered by new props or new state
-      // the component will compare them
-      this._component.updateProps( this.props );
-
       const view = this.state ? this.state.view : null;
 
       if ( view ) {
