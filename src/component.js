@@ -37,7 +37,10 @@ export default class Component {
     const renderSubscription = view$.subscribe( newView => {
       this.view = newView;
       this.viewVersion++;
-      this.shouldUpdate = true; // TODO: may trigger render before state was set resulting in two renders
+
+      // TODO: may trigger render before state was set resulting in two renders
+      this.shouldUpdate = true;
+
       this.onNewView( this.view, this.viewVersion );
     } );
 
@@ -78,6 +81,9 @@ export default class Component {
     this.sourceNames.forEach( sourceName => {
       if ( sourceName in newProps && !this.propIsEqual( this.props[sourceName],
                                                         newProps[sourceName] ) ) {
+        if ( this.directSources )
+          throw new Error( 'Components with directSources=true cannot receive updated sources!' );
+
         this.sources[sourceName].next( newProps[sourceName] );
         console.log( `updating prop${sourceName}` );
       }
