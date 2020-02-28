@@ -1,6 +1,7 @@
+const path = require( 'path' );
 const gulp = require( 'gulp' );
 const sourcemaps = require( 'gulp-sourcemaps' );
-const babel = require( 'gulp-babel' );
+const typescript = require( 'gulp-typescript' );
 const package = require( './package.json' );
 
 function watchTask( task ) {
@@ -10,26 +11,28 @@ function watchTask( task ) {
 }
 
 // build task
-const SRC_GLOB =  './src/**/*.js';
-const DEST = './build';
+const SCRIPTS_SRC_GLOB =  './src/**/*.ts*';
+const SCRIPTS_DEST = './build';
 
-const build = () =>
-  gulp.src( SRC_GLOB, { cwd: __dirname } )
+const CONFIGPATH = path.join( __dirname, 'tsconfig.json' );
+
+const tsProject = typescript.createProject( CONFIGPATH );
+tsProject.options.configFilePath = CONFIGPATH; // due to bug in gulp-typescript
+
+const buildScripts = () =>
+  gulp.src( SCRIPTS_SRC_GLOB, { cwd: __dirname } )
       .pipe( sourcemaps.init() )
-      .pipe(
-        babel( {
-          presets: [ [ '@babel/preset-env', { 'targets': { 'node': '6.10' } } ] ]
-        } ) )
+      .pipe( tsProject() )
       .pipe( sourcemaps.write( '.' ) )
-      .pipe( gulp.dest( DEST, { cwd: __dirname } ) );
+      .pipe( gulp.dest( SCRIPTS_DEST, { cwd: __dirname } ) );
 
-build.displayName = package.name + ' build';
-build.SRC_GLOB = SRC_GLOB;
+buildScripts.displayName = 'build:scripts';
+buildScripts.SRC_GLOB = SCRIPTS_SRC_GLOB;
 
 // watch:build task
-const watchBuild = () => watchTask( build );
-watchBuild.displayName = package.name + ' watch:build';
+const watchBuildScripts = () => watchTask( buildScripts );
+watchBuildScripts.displayName = package.name + ' watch:build';
 
 // exports
-module.exports['build'] = build;
-module.exports['watch:build'] = watchBuild;
+module.exports['build'] = buildScripts;
+module.exports['watch:build'] = watchBuildScripts;

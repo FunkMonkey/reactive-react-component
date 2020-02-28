@@ -1,0 +1,22 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "declaration": true,
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": true,
+        "allowSyntheticDefaultImports": true,
+        "outDir": "build",
+        "target": "es2018",
+        "jsx": "react",
+        "sourceMap": true,
+        "lib": [
+            "dom",
+            "es2018"
+        ],
+    },
+    "include": [
+        "src/**/*.ts*"
+    ]
+}

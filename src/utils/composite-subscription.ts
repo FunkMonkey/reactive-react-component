@@ -1,11 +1,15 @@
+import { ISubscription } from '../IObservable';
 
 export default class CompositeSubscription {
+  _subscriptions: ISubscription[];
+  closed: boolean;
+
   constructor() {
     this._subscriptions = [];
     this.closed = false;
   }
 
-  add( subscription ) {
+  add( subscription: ISubscription ) {
     this._subscriptions.push( subscription );
   }
 
